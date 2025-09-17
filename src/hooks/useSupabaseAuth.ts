@@ -67,7 +67,6 @@ export const useSupabaseAuth = () => {
     phone?: string;
   }) => {
     try {
-      setLoading(true);
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -75,7 +74,10 @@ export const useSupabaseAuth = () => {
 
       if (error) throw error;
 
-      if (data.user) {
+      if (data.user && !data.user.email_confirmed_at) {
+        // User needs to confirm email - don't create profile yet
+        return { data, error: null, needsEmailConfirmation: true };
+      } else if (data.user && data.user.email_confirmed_at) {
         // Create profile
         const { error: profileError } = await supabase
           .from('profiles')
@@ -94,12 +96,10 @@ export const useSupabaseAuth = () => {
         await fetchProfile(data.user.id);
       }
 
-      return { data, error: null };
+      return { data, error: null, needsEmailConfirmation: false };
     } catch (error) {
       console.error('Signup error:', error);
-      return { data: null, error };
-    } finally {
-      setLoading(false);
+      return { data: null, error, needsEmailConfirmation: false };
     }
   };
 

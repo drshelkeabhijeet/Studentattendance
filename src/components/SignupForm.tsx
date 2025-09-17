@@ -91,19 +91,28 @@ const SignupForm: React.FC<SignupFormProps> = ({ onBackToLogin }) => {
           <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
             <div className="bg-gradient-to-r from-green-600 to-green-700 px-8 py-6 text-white text-center">
               <CheckCircle className="w-16 h-16 mx-auto mb-4" />
-              <h1 className="text-xl font-bold mb-2">Registration Successful!</h1>
-              <p className="text-green-100 text-sm">Your account has been created successfully.</p>
+              <h1 className="text-xl font-bold mb-2">Check Your Email!</h1>
+              <p className="text-green-100 text-sm">Account created successfully</p>
             </div>
             
             <div className="p-8 text-center">
               <p className="text-gray-600 mb-6">
-                Please check your email for a verification link to activate your account.
+                We've sent you a verification link at <strong>{formData.email}</strong>. 
+                Please click the link in your email to activate your account before signing in.
+              </p>
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
+                <p className="text-amber-800 text-sm">
+                  <strong>Important:</strong> Check your spam folder if you don't see the email within a few minutes.
+                </p>
+              </div>
+              <p className="text-gray-500 text-sm mb-6">
+                After clicking the verification link, you can return here to sign in.
               </p>
               <button
                 onClick={onBackToLogin}
                 className="w-full bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2"
               >
-                Back to Login
+                Go to Login Page
               </button>
             </div>
           </div>
