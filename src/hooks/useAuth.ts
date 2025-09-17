@@ -21,28 +21,29 @@ export const useAuth = () => {
       const { data, error } = await signIn(formData.email, formData.password);
       
       if (error) {
-        setIsLoading(false);
+        const errorMessage = error.message === 'Email not confirmed' 
+          ? 'Please check your email and click the verification link before signing in.'
+          : error.message === 'Invalid login credentials'
+          ? 'Invalid email or password. Please check your credentials and try again.'
+          : 'An error occurred during login. Please try again.';
+        
         return { 
           success: false, 
-          errors: { 
-            general: error.message === 'Email not confirmed' 
-              ? 'Please check your email and click the verification link before signing in.'
-              : 'Invalid email or password. Please check your credentials and try again.' 
-          }
+          errors: { general: errorMessage }
         };
       }
 
-      setIsLoading(false);
       return { success: true };
     } catch (error) {
       console.error('Login error:', error);
-      setIsLoading(false);
       return { 
         success: false, 
         errors: { 
           general: 'An error occurred during login. Please try again.' 
         }
       };
+    } finally {
+      setIsLoading(false);
     }
   };
 

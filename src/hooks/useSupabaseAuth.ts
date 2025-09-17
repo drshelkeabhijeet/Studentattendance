@@ -70,33 +70,19 @@ export const useSupabaseAuth = () => {
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          data: {
+            full_name: userData.full_name,
+            display_name: userData.full_name
+          }
+        }
       });
 
       if (error) throw error;
 
-      if (data.user && !data.user.email_confirmed_at) {
-        // User needs to confirm email - don't create profile yet
-        return { data, error: null, needsEmailConfirmation: true };
-      } else if (data.user && data.user.email_confirmed_at) {
-        // Create profile
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert([
-            {
-              id: data.user.id,
-              email,
-              ...userData,
-              department: userData.department || 'Management Science',
-            },
-          ]);
+      // Always return success for signup - profile creation happens after email confirmation
+      return { data, error: null, needsEmailConfirmation: !data.user?.email_confirmed_at };
 
-        if (profileError) throw profileError;
-        
-        // Fetch the created profile
-        await fetchProfile(data.user.id);
-      }
-
-      return { data, error: null, needsEmailConfirmation: false };
     } catch (error) {
       console.error('Signup error:', error);
       return { data: null, error, needsEmailConfirmation: false };
