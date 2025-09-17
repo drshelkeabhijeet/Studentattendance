@@ -77,7 +77,6 @@ export const useSupabaseAuth = () => {
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}`,
           data: {
             full_name: userData.full_name,
             display_name: userData.full_name,
@@ -92,11 +91,11 @@ export const useSupabaseAuth = () => {
 
       if (error) throw error;
 
-      return { data, error: null, needsEmailConfirmation: !data.user?.email_confirmed_at };
+      return { data, error: null };
 
     } catch (error: any) {
       console.error('Signup error:', error);
-      return { data: null, error, needsEmailConfirmation: false };
+      return { data: null, error };
     }
   };
 

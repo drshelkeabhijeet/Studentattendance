@@ -58,7 +58,8 @@ const SignupForm: React.FC<SignupFormProps> = ({ onBackToLogin }) => {
             : error.message || 'An error occurred during registration. Please try again.'
         });
       } else {
-        setIsSuccess(true);
+        // Registration successful, redirect to login
+        onBackToLogin();
       }
     } catch (error) {
       setErrors({ 
