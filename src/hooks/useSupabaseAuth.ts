@@ -76,46 +76,29 @@ export const useSupabaseAuth = () => {
       console.log('Starting signup process for:', email);
       console.log('User data:', userData);
       
-      // First, sign up the user
+      // First, sign up the user with email confirmation
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          data: {
+            full_name: userData.full_name,
+            role: userData.role,
+            employee_id: userData.employee_id || null,
+            student_id: userData.student_id || null,
+            department: userData.department,
+            phone: userData.phone || null
+          }
+        }
       });
 
       console.log('Auth signup result:', { data, error });
 
       if (error) throw error;
       
-      // If user creation was successful, create the profile
-      if (data.user) {
-        console.log('Creating profile for user:', data.user.id);
-        
-        const profileData = {
-          id: data.user.id,
-          email: email,
-          full_name: userData.full_name,
-          role: userData.role,
-          employee_id: userData.employee_id || null,
-          student_id: userData.student_id || null,
-          department: userData.department || 'Management Science',
-          phone: userData.phone || null
-        };
-        
-        console.log('Profile data to insert:', profileData);
-        
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert(profileData);
-          
-        console.log('Profile creation result:', profileError);
-        
-        if (profileError) {
-          console.error('Profile creation error:', profileError);
-          throw new Error(`Failed to create user profile: ${profileError.message}`);
-        }
-        
-        console.log('Profile created successfully');
-      }
+      // Note: Profile will be created automatically by the database trigger
+      // after the user confirms their email address
+      console.log('User signup successful, confirmation email sent');
 
       return { data, error: null };
 
