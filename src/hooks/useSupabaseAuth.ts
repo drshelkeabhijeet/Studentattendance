@@ -93,7 +93,9 @@ export const useSupabaseAuth = () => {
             employee_id: userData.employee_id,
             student_id: userData.student_id,
             department: userData.department || 'Management Science',
-            phone: userData.phone
+            phone: userData.phone,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
           });
           
         if (profileError) {
