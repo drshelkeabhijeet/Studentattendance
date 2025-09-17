@@ -25,30 +25,11 @@ export const useAuth = () => {
         return { 
           success: false, 
           errors: { 
-            general: 'Invalid email or password. Please check your credentials and try again.' 
+            general: error.message === 'Email not confirmed' 
+              ? 'Please check your email and click the verification link before signing in.'
+              : 'Invalid email or password. Please check your credentials and try again.' 
           }
         };
-      }
-
-      // Wait for profile to be loaded
-      if (data.user) {
-        // Give some time for the profile to be fetched
-        let attempts = 0;
-        while (!profile && attempts < 10) {
-          await new Promise(resolve => setTimeout(resolve, 500));
-          attempts++;
-        }
-        
-        // Check if user role matches selected role
-        if (profile && profile.role !== formData.role) {
-          setIsLoading(false);
-          return { 
-            success: false, 
-            errors: { 
-              general: `You are not registered as a ${formData.role}. Please select the correct role.` 
-            }
-          };
-        }
       }
 
       setIsLoading(false);

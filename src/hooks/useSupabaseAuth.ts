@@ -105,7 +105,6 @@ export const useSupabaseAuth = () => {
 
   const signIn = async (email: string, password: string) => {
     try {
-      setLoading(true);
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -115,8 +114,6 @@ export const useSupabaseAuth = () => {
     } catch (error) {
       console.error('Signin error:', error);
       return { data: null, error };
-    } finally {
-      setLoading(false);
     }
   };
 
