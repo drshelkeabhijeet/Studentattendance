@@ -69,37 +69,52 @@ export const useSupabaseAuth = () => {
     role: 'administrator' | 'faculty' | 'student';
     employee_id?: string;
     student_id?: string;
-    department: string;
+    department?: string;
     phone?: string;
   }) => {
     try {
+      console.log('Starting signup process for:', email);
+      console.log('User data:', userData);
+      
       // First, sign up the user
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
       });
 
+      console.log('Auth signup result:', { data, error });
+
       if (error) throw error;
       
       // If user creation was successful, create the profile
       if (data.user) {
+        console.log('Creating profile for user:', data.user.id);
+        
+        const profileData = {
+          id: data.user.id,
+          email: email,
+          full_name: userData.full_name,
+          role: userData.role,
+          employee_id: userData.employee_id || null,
+          student_id: userData.student_id || null,
+          department: userData.department || 'Management Science',
+          phone: userData.phone || null
+        };
+        
+        console.log('Profile data to insert:', profileData);
+        
         const { error: profileError } = await supabase
           .from('profiles')
-          .insert({
-            id: data.user.id,
-            email: email,
-            full_name: userData.full_name,
-            role: userData.role,
-            employee_id: userData.employee_id,
-            student_id: userData.student_id,
-            department: userData.department || 'Management Science',
-            phone: userData.phone
-          });
+          .insert(profileData);
           
+        console.log('Profile creation result:', profileError);
+        
         if (profileError) {
           console.error('Profile creation error:', profileError);
-          throw new Error('Failed to create user profile');
+          throw new Error(`Failed to create user profile: ${profileError.message}`);
         }
+        
+        console.log('Profile created successfully');
       }
 
       return { data, error: null };
