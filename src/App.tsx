@@ -9,27 +9,30 @@ import SignupForm from './components/SignupForm';
 import { AlertCircle, Loader2 } from 'lucide-react';
 
 function App() {
-  const { user, isLoading, login, logout } = useAuth();
+  const { user, isLoading: authLoading, login, logout } = useAuth();
   const [showSignup, setShowSignup] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<LoginFormData>({
     email: '',
     password: '',
     role: 'student'
   });
   const [errors, setErrors] = useState<FormErrors>({});
-  const [showCredentials, setShowCredentials] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
+    setIsSubmitting(true);
 
-    const result = await login(formData);
-    
-    if (!result.success && result.errors) {
-      setErrors(result.errors);
+    try {
+      const result = await login(formData);
+      
+      if (!result.success && result.errors) {
+        setErrors(result.errors);
+      }
+    } finally {
+      setIsSubmitting(false);
     }
-    // Clear any form-level loading states
-    // The login function handles its own loading state
   };
 
   const handleReset = () => {
@@ -44,6 +47,8 @@ function App() {
   if (showSignup) {
     return <SignupForm onBackToLogin={() => setShowSignup(false)} />;
   }
+
+  const isLoading = authLoading || isSubmitting;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-amber-50 flex items-center justify-center p-4">

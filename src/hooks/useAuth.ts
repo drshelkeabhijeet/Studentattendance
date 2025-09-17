@@ -5,40 +5,41 @@ import { useSupabaseAuth } from './useSupabaseAuth';
 
 export const useAuth = () => {
   const { user, profile, loading: authLoading, signIn, signOut } = useSupabaseAuth();
-  const [isLoading, setIsLoading] = useState(false);
+  const [loginLoading, setLoginLoading] = useState(false);
 
   const login = async (formData: LoginFormData): Promise<{ success: boolean; errors?: FormErrors }> => {
-    setIsLoading(true);
-
-    // Validate form
+    // Validate form first
     const validationErrors = validateForm(formData);
     if (Object.keys(validationErrors).length > 0) {
-      setIsLoading(false);
       return { success: false, errors: validationErrors };
     }
+
+    setLoginLoading(true);
 
     try {
       const { data, error } = await signIn(formData.email, formData.password);
       
       if (error) {
-        const errorMessage = error.message === 'Email not confirmed' 
-          ? 'Please check your email and click the verification link before signing in.'
-          : error.message === 'Invalid login credentials'
-          ? 'Invalid email or password. Please check your credentials and try again.'
-          : 'An error occurred during login. Please try again.';
+        let errorMessage = 'An error occurred during login. Please try again.';
         
-        setIsLoading(false);
+        if (error.message === 'Email not confirmed') {
+          errorMessage = 'Please check your email and click the verification link before signing in.';
+        } else if (error.message === 'Invalid login credentials') {
+          errorMessage = 'Invalid email or password. Please check your credentials and try again.';
+        }
+        
+        setLoginLoading(false);
         return { 
           success: false, 
           errors: { general: errorMessage }
         };
       }
 
-      setIsLoading(false);
+      // Success - don't set loading to false here, let auth state handle it
       return { success: true };
     } catch (error) {
       console.error('Login error:', error);
-      setIsLoading(false);
+      setLoginLoading(false);
       return { 
         success: false, 
         errors: { 
@@ -54,7 +55,7 @@ export const useAuth = () => {
 
   return {
     user: profile,
-    isLoading: isLoading || authLoading,
+    isLoading: loginLoading || authLoading,
     login,
     logout
   };

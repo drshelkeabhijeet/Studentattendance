@@ -24,6 +24,8 @@ export const useSupabaseAuth = () => {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth state change:', event, session?.user?.email);
+      
       setSession(session);
       setUser(session?.user ?? null);
       
@@ -40,6 +42,7 @@ export const useSupabaseAuth = () => {
 
   const fetchProfile = async (userId: string) => {
     try {
+      console.log('Fetching profile for user:', userId);
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -48,11 +51,14 @@ export const useSupabaseAuth = () => {
 
       if (error) {
         console.error('Error fetching profile:', error);
+        setProfile(null);
       } else {
+        console.log('Profile fetched:', data);
         setProfile(data);
       }
     } catch (error) {
       console.error('Error fetching profile:', error);
+      setProfile(null);
     } finally {
       setLoading(false);
     }
@@ -73,17 +79,21 @@ export const useSupabaseAuth = () => {
         options: {
           data: {
             full_name: userData.full_name,
-            display_name: userData.full_name
+            display_name: userData.full_name,
+            role: userData.role,
+            employee_id: userData.employee_id,
+            student_id: userData.student_id,
+            department: userData.department || 'Management Science',
+            phone: userData.phone
           }
         }
       });
 
       if (error) throw error;
 
-      // Always return success for signup - profile creation happens after email confirmation
       return { data, error: null, needsEmailConfirmation: !data.user?.email_confirmed_at };
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Signup error:', error);
       return { data: null, error, needsEmailConfirmation: false };
     }
@@ -91,21 +101,14 @@ export const useSupabaseAuth = () => {
 
   const signIn = async (email: string, password: string) => {
     try {
-      setLoading(true);
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (error) {
-        setLoading(false);
-      }
-      // Don't set loading to false on success - let the auth state change handle it
-
       return { data, error };
-    } catch (error) {
+    } catch (error: any) {
       console.error('Signin error:', error);
-      setLoading(false);
       return { data: null, error };
     }
   };
