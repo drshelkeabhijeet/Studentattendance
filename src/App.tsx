@@ -5,10 +5,12 @@ import UniversityLogo from './components/UniversityLogo';
 import RoleSelector from './components/RoleSelector';
 import InputField from './components/InputField';
 import Dashboard from './components/Dashboard';
+import SignupForm from './components/SignupForm';
 import { AlertCircle, Loader2 } from 'lucide-react';
 
 function App() {
   const { user, isLoading, login, logout } = useAuth();
+  const [showSignup, setShowSignup] = useState(false);
   const [formData, setFormData] = useState<LoginFormData>({
     email: '',
     password: '',
@@ -35,6 +37,10 @@ function App() {
 
   if (user) {
     return <Dashboard user={user} onLogout={logout} />;
+  }
+
+  if (showSignup) {
+    return <SignupForm onBackToLogin={() => setShowSignup(false)} />;
   }
 
   return (
@@ -133,6 +139,19 @@ function App() {
                   >
                     Forgot Password?
                   </button>
+                </div>
+
+                <div className="text-center pt-4 border-t border-gray-200">
+                  <p className="text-sm text-gray-600">
+                    Don't have an account?{' '}
+                    <button
+                      type="button"
+                      onClick={() => setShowSignup(true)}
+                      className="text-teal-600 hover:text-teal-700 font-semibold transition-colors duration-200"
+                    >
+                      Create Account
+                    </button>
+                  </p>
                 </div>
               </div>
             </form>

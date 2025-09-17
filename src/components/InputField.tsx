@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, User, Phone, Hash } from 'lucide-react';
 
 interface InputFieldProps {
-  type: 'email' | 'password';
+  type: 'email' | 'password' | 'text';
   value: string;
   onChange: (value: string) => void;
   error?: string;
@@ -19,7 +19,23 @@ const InputField: React.FC<InputFieldProps> = ({
   label
 }) => {
   const [showPassword, setShowPassword] = useState(false);
-  const Icon = type === 'email' ? Mail : Lock;
+  
+  const getIcon = () => {
+    switch (type) {
+      case 'email':
+        return Mail;
+      case 'password':
+        return Lock;
+      case 'text':
+        if (label.toLowerCase().includes('phone')) return Phone;
+        if (label.toLowerCase().includes('id')) return Hash;
+        return User;
+      default:
+        return User;
+    }
+  };
+  
+  const Icon = getIcon();
 
   const inputType = type === 'password' && showPassword ? 'text' : type;
 
