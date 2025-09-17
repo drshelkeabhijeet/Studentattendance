@@ -81,6 +81,7 @@ export const useSupabaseAuth = () => {
         email,
         password,
         options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
           data: {
             full_name: userData.full_name,
             role: userData.role,

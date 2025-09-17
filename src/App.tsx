@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { useEffect } from 'react';
 import { LoginFormData, FormErrors, UserRole } from './types/auth';
 import { useAuth } from './hooks/useAuth';
+import { supabase } from './lib/supabase';
 import UniversityLogo from './components/UniversityLogo';
 import RoleSelector from './components/RoleSelector';
 import InputField from './components/InputField';
@@ -12,6 +14,7 @@ function App() {
   const { user, isLoading: authLoading, login, logout } = useAuth();
   const [showSignup, setShowSignup] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [confirmationMessage, setConfirmationMessage] = useState<string | null>(null);
   const [formData, setFormData] = useState<LoginFormData>({
     email: '',
     password: '',
@@ -19,9 +22,42 @@ function App() {
   });
   const [errors, setErrors] = useState<FormErrors>({});
 
+  useEffect(() => {
+    // Handle email confirmation callback
+    const handleAuthCallback = async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const fragment = window.location.hash.substring(1);
+      const fragmentParams = new URLSearchParams(fragment);
+      
+      // Check for confirmation success
+      if (fragmentParams.get('type') === 'signup') {
+        setConfirmationMessage('Email confirmed successfully! You can now sign in with your credentials.');
+        // Clear the URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+      
+      // Check for errors
+      const error = fragmentParams.get('error');
+      const errorDescription = fragmentParams.get('error_description');
+      
+      if (error) {
+        console.error('Auth callback error:', error, errorDescription);
+        setErrors({ 
+          general: errorDescription ? 
+            decodeURIComponent(errorDescription.replace(/\+/g, ' ')) : 
+            'An error occurred during email confirmation. Please try again.'
+        });
+        // Clear the URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    };
+
+    handleAuthCallback();
+  }, []);
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
+    setConfirmationMessage(null);
     setIsSubmitting(true);
 
     try {
@@ -38,6 +74,7 @@ function App() {
   const handleReset = () => {
     setFormData({ email: '', password: '', role: 'student' });
     setErrors({});
+    setConfirmationMessage(null);
   };
 
   if (user) {
@@ -76,6 +113,20 @@ function App() {
               <p className="text-gray-600 text-sm">Please sign in with your account</p>
             </div>
 
+            {/* Confirmation Message */}
+            {confirmationMessage && (
+              <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-start space-x-3">
+                <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-green-800 text-sm font-medium">Email Confirmed!</p>
+                  <p className="text-green-700 text-sm mt-1">{confirmationMessage}</p>
+                </div>
+              </div>
+            )}
             {/* Error Alert */}
             {errors.general && (
               <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start space-x-3">
