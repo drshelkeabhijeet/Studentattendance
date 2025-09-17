@@ -67,6 +67,7 @@ export const useSupabaseAuth = () => {
     phone?: string;
   }) => {
     try {
+      setLoading(true);
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -88,16 +89,23 @@ export const useSupabaseAuth = () => {
           ]);
 
         if (profileError) throw profileError;
+        
+        // Fetch the created profile
+        await fetchProfile(data.user.id);
       }
 
       return { data, error: null };
     } catch (error) {
+      console.error('Signup error:', error);
       return { data: null, error };
+    } finally {
+      setLoading(false);
     }
   };
 
   const signIn = async (email: string, password: string) => {
     try {
+      setLoading(true);
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -105,13 +113,26 @@ export const useSupabaseAuth = () => {
 
       return { data, error };
     } catch (error) {
+      console.error('Signin error:', error);
       return { data: null, error };
+    } finally {
+      setLoading(false);
     }
   };
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    return { error };
+    try {
+      setLoading(true);
+      const { error } = await supabase.auth.signOut();
+      if (!error) {
+        setProfile(null);
+        setUser(null);
+        setSession(null);
+      }
+      return { error };
+    } finally {
+      setLoading(false);
+    }
   };
 
   return {
