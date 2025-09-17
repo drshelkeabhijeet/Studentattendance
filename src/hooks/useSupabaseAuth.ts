@@ -69,7 +69,7 @@ export const useSupabaseAuth = () => {
     role: 'administrator' | 'faculty' | 'student';
     employee_id?: string;
     student_id?: string;
-    department?: string;
+    department: string;
     phone?: string;
   }) => {
     try {
