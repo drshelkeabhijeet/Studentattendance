@@ -22,7 +22,7 @@ export const useAuth = () => {
       if (error) {
         let errorMessage = 'An error occurred during login. Please try again.';
         
-        if (error.message === 'Email not confirmed') {
+        if (error.message === 'Email not confirmed' || error.message.includes('email_not_confirmed')) {
           errorMessage = 'Please check your email and click the verification link before signing in.';
         } else if (error.message === 'Invalid login credentials') {
           errorMessage = 'Invalid email or password. Please check your credentials and try again.';
