@@ -91,14 +91,21 @@ export const useSupabaseAuth = () => {
 
   const signIn = async (email: string, password: string) => {
     try {
+      setLoading(true);
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
+      if (error) {
+        setLoading(false);
+      }
+      // Don't set loading to false on success - let the auth state change handle it
+
       return { data, error };
     } catch (error) {
       console.error('Signin error:', error);
+      setLoading(false);
       return { data: null, error };
     }
   };

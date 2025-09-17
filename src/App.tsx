@@ -28,6 +28,8 @@ function App() {
     if (!result.success && result.errors) {
       setErrors(result.errors);
     }
+    // Clear any form-level loading states
+    // The login function handles its own loading state
   };
 
   const handleReset = () => {

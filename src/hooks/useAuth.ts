@@ -27,23 +27,24 @@ export const useAuth = () => {
           ? 'Invalid email or password. Please check your credentials and try again.'
           : 'An error occurred during login. Please try again.';
         
+        setIsLoading(false);
         return { 
           success: false, 
           errors: { general: errorMessage }
         };
       }
 
+      setIsLoading(false);
       return { success: true };
     } catch (error) {
       console.error('Login error:', error);
+      setIsLoading(false);
       return { 
         success: false, 
         errors: { 
           general: 'An error occurred during login. Please try again.' 
         }
       };
-    } finally {
-      setIsLoading(false);
     }
   };
 
