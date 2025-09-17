@@ -73,22 +73,34 @@ export const useSupabaseAuth = () => {
     phone?: string;
   }) => {
     try {
+      // First, sign up the user
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
-        options: {
-          data: {
+      });
+
+      if (error) throw error;
+      
+      // If user creation was successful, create the profile
+      if (data.user) {
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert({
+            id: data.user.id,
+            email: email,
             full_name: userData.full_name,
             role: userData.role,
             employee_id: userData.employee_id,
             student_id: userData.student_id,
             department: userData.department || 'Management Science',
             phone: userData.phone
-          }
+          });
+          
+        if (profileError) {
+          console.error('Profile creation error:', profileError);
+          throw new Error('Failed to create user profile');
         }
-      });
-
-      if (error) throw error;
+      }
 
       return { data, error: null };
 
