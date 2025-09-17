@@ -53,7 +53,9 @@ const SignupForm: React.FC<SignupFormProps> = ({ onBackToLogin }) => {
 
       if (error) {
         setErrors({ 
-          general: error.message || 'An error occurred during registration. Please try again.' 
+          general: error.message === 'User already registered' 
+            ? 'This email address is already registered. Please try logging in or use a different email.'
+            : error.message || 'An error occurred during registration. Please try again.'
         });
       } else {
         setIsSuccess(true);
