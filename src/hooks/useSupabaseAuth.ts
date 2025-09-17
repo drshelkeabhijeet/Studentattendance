@@ -79,7 +79,6 @@ export const useSupabaseAuth = () => {
         options: {
           data: {
             full_name: userData.full_name,
-            display_name: userData.full_name,
             role: userData.role,
             employee_id: userData.employee_id,
             student_id: userData.student_id,
